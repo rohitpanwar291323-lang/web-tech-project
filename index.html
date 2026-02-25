@@ -10,10 +10,18 @@
 <body>
 
   <div class="container">
+    
     <header class="header">
       <div class="title-area">
         <h1>TO DO LIST</h1>
         <p class="tagline">Don't forget to do your tasks!</p>
+      </div>
+
+      <div class="header-right">
+        <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark/light mode">
+          <span class="icon-sun">☀️</span>
+          <span class="icon-moon">🌙</span>
+        </button>
       </div>
 
       <div class="stats">
@@ -28,6 +36,7 @@
         </div>
       </div>
     </header>
+
     <form id="taskForm" class="add-task-form">
       <div class="input-row">
         <input
@@ -62,7 +71,9 @@
       <button type="button" class="filter-btn" data-filter="completed">Done</button>
       <button type="button" class="clear-completed" data-action="clear">Clear completed</button>
     </div>
+
     <ul class="task-list" id="taskList"></ul>
+
     <div class="empty-state" id="emptyState">
       <div class="empty-emoji">📋✨</div>
       <p>No tasks yet</p>
