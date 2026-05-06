@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile — TO DO LIST</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --indigo: #4f46e5;
+      --indigo-dark: #3730a3;
+      --indigo-light: #6366f1;
+      --purple: #764ba2;
+      --green: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --bg-grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card: #ffffff;
+      --surface: #f9fafb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 4px 24px -4px rgba(0,0,0,0.10);
+      --radius: 16px;
+    }
+
+    html.dark {
+      --bg-grad: linear-gradient(135deg, #1a2236 0%, #2d3a52 100%);
+      --card: #1e2937;
+      --surface: #263447;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #334155;
+      --shadow: 0 4px 24px -4px rgba(0,0,0,0.35);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-grad);
+      min-height: 100vh;
+      color: var(--text);
+      padding: 24px 16px 60px;
+      transition: background 0.4s;
+    }
+
+    /* ── Top nav ── */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 720px;
+      margin: 0 auto 28px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(6px);
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .back-btn:hover { background: rgba(255,255,255,0.28); transform: translateX(-2px); }
+
+    .nav-title {
+      font-family: 'DM Serif Display', serif;
+      color: white;
+      font-size: 1.25rem;
+      opacity: 0.92;
+    }
+
+    .theme-toggle {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: white;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .theme-toggle:hover { background: rgba(255,255,255,0.3); }
+    .icon-moon { display: none; }
+    html.dark .icon-sun { display: none; }
+    html.dark .icon-moon { display: inline; }
+
+    /* ── Layout ── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: background 0.3s;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 22px 28px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title .icon { font-size: 1.15rem; }
+
+    .card-body { padding: 20px 28px 28px; }
+
+    /* ── Hero profile card ── */
+    .hero-card {
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 40px -8px rgba(79,70,229,0.45);
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+      top: -80px; right: -60px;
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+      bottom: -60px; left: 40px;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* Avatar */
+    .avatar-wrap { position: relative; }
+
+    .avatar {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 3px solid rgba(255,255,255,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.6rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      user-select: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.3);
+    }
+
+    .avatar-edit-hint {
+      position: absolute;
+      bottom: 0; right: 0;
+      background: white;
+      border-radius: 50%;
+      width: 26px; height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      pointer-events: none;
+    }
+
+    .hero-info { flex: 1; color: white; }
+
+    .hero-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.9rem;
+      line-height: 1.1;
+      margin-bottom: 5px;
+    }
+
+    .hero-email {
+      font-size: 0.92rem;
+      opacity: 0.8;
+      margin-bottom: 12px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .member-since {
+      display: block;
+      font-size: 0.8rem;
+      opacity: 0.65;
+      margin-top: 8px;
+    }
+
+    /* ── Emoji Picker ── */
+    .emoji-picker-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .emoji-picker-overlay.open { display: flex; }
+
+    .emoji-picker {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 28px;
+      width: 340px;
+      max-width: calc(100vw - 32px);
+      box-shadow: 0 32px 64px rgba(0,0,0,0.22);
+      animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.88); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .emoji-picker h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .emoji-opt {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background: var(--surface);
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .emoji-opt:hover { background: var(--border); transform: scale(1.1); }
+    .emoji-opt.selected { border-color: var(--indigo); background: rgba(99,102,241,0.1); }
+
+    .emoji-close {
+      width: 100%;
+      padding: 11px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .emoji-close:hover { background: var(--border); }
+
+    /* ── Stats grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .stat-box {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 18px 14px;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-box:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--indigo);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    /* ── Edit form ── */
+    .edit-section { display: none; }
+    .edit-section.open { display: block; }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 7px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.98rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--indigo-light);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+      background: var(--card);
+    }
+
+    .field input.error { border-color: var(--red); }
+    .field-error { font-size: 0.8rem; color: var(--red); margin-top: 4px; display: none; }
+    .field-error.show { display: block; }
+
+    .field-hint { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 44px; }
+    .toggle-pass {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 1rem;
+      color: var(--muted); padding: 3px;
+    }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 6px; }
+
+    .btn {
+      padding: 11px 22px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--indigo-light), var(--indigo-dark));
+      color: white;
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(79,70,229,0.35); }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover { background: var(--border); color: var(--text); }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--red);
+    }
+
+    .btn-danger:hover { background: #fecaca; }
+
+    html.dark .btn-danger { background: #7f1d1d; color: #fca5a5; }
+    html.dark .btn-danger:hover { background: #991b1b; }
+
+    .edit-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .edit-toggle-btn:hover { border-color: var(--indigo-light); color: var(--indigo); background: rgba(99,102,241,0.06); }
+
+    /* ── Success toast ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #065f46;
+      color: #d1fae5;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      z-index: 999;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+      opacity: 0;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* ── Activity timeline ── */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .timeline-item:last-child { border-bottom: none; }
+
+    .tl-dot {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .tl-dot.done    { background: #d1fae5; }
+    .tl-dot.pending { background: #ede9fe; }
+    .tl-dot.overdue { background: #fee2e2; }
+    .tl-dot.deleted { background: #f1f5f9; }
+
+    html.dark .tl-dot.done    { background: #064e3b; }
+    html.dark .tl-dot.pending { background: #3730a3; }
+    html.dark .tl-dot.overdue { background: #7f1d1d; }
+    html.dark .tl-dot.deleted { background: #1e2937; }
+
+    .tl-body { flex: 1; }
+
+    .tl-text {
+      font-size: 0.95rem;
+      color: var(--text);
+      font-weight: 500;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .tl-text.strike { text-decoration: line-through; color: var(--muted); }
+
+    .tl-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 3px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tl-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+
+    .tl-badge.high   { background: #fee2e2; color: #dc2626; }
+    .tl-badge.medium { background: #fef3c7; color: #d97706; }
+    .tl-badge.low    { background: #d1fae5; color: #059669; }
+
+    html.dark .tl-badge.high   { background: #7f1d1d; color: #fca5a5; }
+    html.dark .tl-badge.medium { background: #78350f; color: #fcd34d; }
+    html.dark .tl-badge.low    { background: #064e3b; color: #6ee7b7; }
+
+    .timeline-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .timeline-empty .big { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* ── Progress ring ── */
+    .ring-wrap {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+
+    .ring-svg { flex-shrink: 0; }
+
+    .ring-info { flex: 1; min-width: 140px; }
+
+    .ring-legend { display: flex; flex-direction: column; gap: 9px; }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .legend-val { margin-left: auto; font-weight: 700; color: var(--text); }
+
+    /* ── Danger zone ── */
+    .danger-zone {
+      border: 1.5px solid #fecaca;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    html.dark .danger-zone { border-color: #7f1d1d; }
+
+    .danger-header {
+      background: #fff5f5;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    html.dark .danger-header { background: #450a0a; }
+
+    .danger-header span {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .danger-body {
+      background: var(--card);
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .danger-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .danger-desc { font-size: 0.9rem; color: var(--text); }
+    .danger-desc small { display: block; color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+
+    /* ── Section alert ── */
+    .section-alert {
+      padding: 11px 15px;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      display: none;
+      margin-bottom: 14px;
+    }
+
+    .section-alert.show { display: flex; align-items: center; gap: 8px; }
+    .section-alert.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .section-alert.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    html.dark .section-alert.success { background: #064e3b; color: #6ee7b7; border-color: #065f46; }
+    html.dark .section-alert.error   { background: #7f1d1d; color: #fca5a5; border-color: #991b1b; }
+
+    /* Filter tabs for timeline */
+    .tl-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .tl-filter {
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .tl-filter.active { background: var(--indigo); color: white; border-color: var(--indigo); }
+    .tl-filter:not(.active):hover { border-color: var(--indigo-light); color: var(--indigo); }
+
+    /* Responsive */
+    @media (max-width: 540px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-inner { gap: 18px; }
+      .hero-name { font-size: 1.5rem; }
+      .card-body { padding: 18px 20px 22px; }
+      .card-header { padding: 18px 20px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top nav -->
+  <nav class="top-nav">
+    <a href="index.html" class="back-btn">← Back</a>
+    <span class="nav-title">My Profile</span>
+    <button class="theme-toggle" id="themeToggle">
+      <span class="icon-sun">☀️</span>
+      <span class="icon-moon">🌙</span>
+    </button>
+  </nav>
+
+  <div class="page" id="page">
+
+    <!-- Hero -->
+    <div class="hero-card">
+      <div class="hero-inner">
+        <div class="avatar-wrap">
+          <div class="avatar" id="heroAvatar" onclick="openEmojiPicker()" title="Click to change avatar">😊</div>
+          <div class="avatar-edit-hint">✏️</div>
+        </div>
+        <div class="hero-info">
+          <div class="hero-name" id="heroName">—</div>
+          <div class="hero-email" id="heroEmail">—</div>
+          <span class="hero-badge" id="heroBadge">🌱 Newcomer</span>
+          <span class="member-since" id="memberSince"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📊</span> Task Statistics</div>
+      </div>
+      <div class="card-body">
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-num" id="statTotal">0</div>
+            <div class="stat-label">Total Tasks</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statDone" style="color:var(--green)">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statActive" style="color:var(--amber)">0</div>
+            <div class="stat-label">Active</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statOverdue" style="color:var(--red)">0</div>
+            <div class="stat-label">Overdue</div>
+          </div>
+        </div>
+
+        <!-- Completion ring -->
+        <div class="ring-wrap" style="margin-top:24px;">
+          <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="44" fill="none" stroke="var(--border)" stroke-width="12"/>
+            <circle id="ringFill" cx="55" cy="55" r="44" fill="none" stroke="var(--indigo)" stroke-width="12"
+              stroke-linecap="round"
+              stroke-dasharray="276.46"
+              stroke-dashoffset="276.46"
+              transform="rotate(-90 55 55)"
+              style="transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1)"/>
+            <text x="55" y="50" text-anchor="middle" font-family="DM Serif Display,serif" font-size="22" fill="var(--text)" id="ringPct">0%</text>
+            <text x="55" y="67" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="var(--muted)">DONE</text>
+          </svg>
+          <div class="ring-info">
+            <div class="ring-legend" id="ringLegend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--green)"></div>
+                <span>Completed</span>
+                <span class="legend-val" id="legDone">0</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--amber)"></div>
+                <span>Active</span>
+                <span class="legend-val" id="legActive">0</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--red)"></div>
+                <span>Overdue</span>
+                <span class="legend-val" id="legOverdue">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Profile -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">👤</span> Profile Info</div>
+        <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEdit()">✏️ Edit</button>
+      </div>
+      <div class="card-body">
+        <div class="section-alert" id="profileAlert"></div>
+
+        <!-- View mode -->
+        <div id="profileView">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div>
+              <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;font-weight:600;margin-bottom:3px;">Full Name</div>
+              <div style="font-size:1rem;color:var(--text);font-weight:500;" id="viewName">—</div>
+            </div>
+            <div>
+              <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;font-weight:600;margin-bottom:3px;">Email</div>
+              <div style="font-size:1rem;color:var(--text);font-weight:500;" id="viewEmail">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit mode -->
+        <div class="edit-section" id="profileEdit">
+          <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="editName" placeholder="Your full name">
+            <div class="field-error" id="editNameErr">Name must be at least 2 characters.</div>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="editEmail" placeholder="your@email.com">
+            <div class="field-error" id="editEmailErr">Enter a valid email address.</div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+            <button class="btn btn-ghost" onclick="cancelEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🔒</span> Change Password</div>
+        <button class="edit-toggle-btn" id="pwToggleBtn" onclick="togglePassword_section()">✏️ Change</button>
+      </div>
+      <div class="card-body">
+        <div class="section-alert" id="pwAlert"></div>
+        <div id="pwView" style="font-size:0.95rem;color:var(--muted);">Password is hidden for security. Click "Change" to update it.</div>
+        <div class="edit-section" id="pwEdit">
+          <div class="field">
+            <label>Current Password</label>
+            <div class="password-wrap">
+              <input type="password" id="pwCurrent" placeholder="Enter current password">
+              <button class="toggle-pass" onclick="togglePwVis('pwCurrent', this)">👁</button>
+            </div>
+            <div class="field-error" id="pwCurrentErr">Incorrect current password.</div>
+          </div>
+          <div class="field">
+            <label>New Password</label>
+            <div class="password-wrap">
+              <input type="password" id="pwNew" placeholder="At least 6 characters">
+              <button class="toggle-pass" onclick="togglePwVis('pwNew', this)">👁</button>
+            </div>
+            <div class="field-error" id="pwNewErr">Password must be at least 6 characters.</div>
+          </div>
+          <div class="field">
+            <label>Confirm New Password</label>
+            <div class="password-wrap">
+              <input type="password" id="pwConfirm" placeholder="Repeat new password">
+              <button class="toggle-pass" onclick="togglePwVis('pwConfirm', this)">👁</button>
+            </div>
+            <div class="field-error" id="pwConfirmErr">Passwords do not match.</div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="savePassword()">Update Password</button>
+            <button class="btn btn-ghost" onclick="cancelPasswordEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity / Task History -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🕐</span> Task History</div>
+      </div>
+      <div class="card-body">
+        <div class="tl-filters">
+          <button class="tl-filter active" data-tf="all" onclick="filterTimeline('all', this)">All</button>
+          <button class="tl-filter" data-tf="completed" onclick="filterTimeline('completed', this)">✅ Completed</button>
+          <button class="tl-filter" data-tf="active" onclick="filterTimeline('active', this)">⏳ Active</button>
+          <button class="tl-filter" data-tf="overdue" onclick="filterTimeline('overdue', this)">🔴 Overdue</button>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="danger-zone">
+      <div class="danger-header">
+        <span>⚠️ Danger Zone</span>
+      </div>
+      <div class="danger-body">
+        <div class="danger-row">
+          <div class="danger-desc">
+            Clear all my tasks
+            <small>Permanently deletes all your tasks. Cannot be undone.</small>
+          </div>
+          <button class="btn btn-danger" onclick="clearAllTasks()">Clear Tasks</button>
+        </div>
+        <div class="danger-row">
+          <div class="danger-desc">
+            Delete account
+            <small>Removes your account and all data permanently.</small>
+          </div>
+          <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Emoji Picker -->
+  <div class="emoji-picker-overlay" id="emojiOverlay" onclick="handleOverlayClick(event)">
+    <div class="emoji-picker">
+      <h3>Choose your avatar</h3>
+      <div class="emoji-grid" id="emojiGrid"></div>
+      <button class="emoji-close" onclick="closeEmojiPicker()">Close</button>
+    </div>
+  </div>
+
+<script>
+// ── Helpers ────────────────────────────────────────────────────────────────
+const EMOJIS = ['😊','😎','🤓','🦊','🐱','🐶','🐼','🦁','🐨','🐸','🦋','🌸','⭐','🔥','💎','🎯','🚀','🌈','🍀','🎨','🎵','💡','🏆','🌙','🦄','☀️','🌊','🍕'];
+
+function getSession() {
+  const s = localStorage.getItem('todo_session');
+  return s ? JSON.parse(s) : null;
+}
+
+function getUsers() {
+  return JSON.parse(localStorage.getItem('todo_users') || '[]');
+}
+
+function saveUsers(users) {
+  localStorage.setItem('todo_users', JSON.stringify(users));
+}
+
+function getUserTasks(email) {
+  const key = 'tasks_' + email.toLowerCase();
+  const raw = localStorage.getItem(key);
+  if (raw) return JSON.parse(raw);
+  // Fallback: check old global tasks key (migration)
+  const old = localStorage.getItem('tasks');
+  return old ? JSON.parse(old) : [];
+}
+
+function isOverdue(task) {
+  if (!task.dueDate || task.completed) return false;
+  const due = new Date(task.dueDate);
+  due.setHours(23,59,59,999);
+  return due < new Date();
+}
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getBadge(total) {
+  if (total >= 50) return '🏆 Legend';
+  if (total >= 25) return '🥇 Pro Planner';
+  if (total >= 10) return '⭐ Go-Getter';
+  if (total >= 3)  return '🌿 Getting Started';
+  return '🌱 Newcomer';
+}
+
+// ── Theme ──────────────────────────────────────────────────────────────────
+const root = document.documentElement;
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    root.classList.add('dark');
+  }
+})();
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  root.classList.toggle('dark');
+  localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+});
+
+// ── Auth guard ─────────────────────────────────────────────────────────────
+const session = getSession();
+if (!session) { window.location.replace('auth.html'); }
+
+// ── Load profile ───────────────────────────────────────────────────────────
+let currentUser = null;
+let allTasks = [];
+let tlFilter = 'all';
+
+function loadProfile() {
+  const users = getUsers();
+  currentUser = users.find(u => u.email.toLowerCase() === session.email.toLowerCase());
+  if (!currentUser) { window.location.replace('auth.html'); return; }
+
+  // Avatar
+  const avatar = currentUser.avatar || '😊';
+  document.getElementById('heroAvatar').textContent = avatar;
+
+  // Names / email
+  document.getElementById('heroName').textContent = currentUser.name;
+  document.getElementById('heroEmail').textContent = currentUser.email;
+  document.getElementById('viewName').textContent = currentUser.name;
+  document.getElementById('viewEmail').textContent = currentUser.email;
+
+  // Badge
+  allTasks = getUserTasks(currentUser.email);
+  const totalEver = allTasks.length;
+  document.getElementById('heroBadge').textContent = getBadge(totalEver);
+
+  // Member since
+  if (currentUser.joinedAt) {
+    document.getElementById('memberSince').textContent = 'Member since ' + formatDate(currentUser.joinedAt);
+  }
+
+  // Stats
+  const total   = allTasks.length;
+  const done    = allTasks.filter(t => t.completed).length;
+  const active  = allTasks.filter(t => !t.completed && !isOverdue(t)).length;
+  const overdue = allTasks.filter(t => isOverdue(t)).length;
+
+  document.getElementById('statTotal').textContent   = total;
+  document.getElementById('statDone').textContent    = done;
+  document.getElementById('statActive').textContent  = active;
+  document.getElementById('statOverdue').textContent = overdue;
+
+  document.getElementById('legDone').textContent    = done;
+  document.getElementById('legActive').textContent  = active;
+  document.getElementById('legOverdue').textContent = overdue;
+
+  // Ring
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const circ = 2 * Math.PI * 44;
+  const offset = circ - (pct / 100) * circ;
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+  document.getElementById('ringPct').textContent = pct + '%';
+
+  // Timeline
+  renderTimeline();
+
+  // Emoji picker init
+  buildEmojiGrid(avatar);
+}
+
+// ── Timeline ───────────────────────────────────────────────────────────────
+function renderTimeline() {
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+
+  let tasks = [...allTasks].sort((a, b) => Number(b.id) - Number(a.id));
+
+  if (tlFilter === 'completed') tasks = tasks.filter(t => t.completed);
+  else if (tlFilter === 'active')    tasks = tasks.filter(t => !t.completed && !isOverdue(t));
+  else if (tlFilter === 'overdue')   tasks = tasks.filter(t => isOverdue(t));
+
+  if (tasks.length === 0) {
+    tl.innerHTML = `<div class="timeline-empty"><div class="big">📋</div><div>No tasks to show</div></div>`;
+    return;
+  }
+
+  tasks.forEach((task, i) => {
+    const over = isOverdue(task);
+    const dotClass = task.completed ? 'done' : over ? 'overdue' : 'pending';
+    const icon     = task.completed ? '✅' : over ? '🔴' : '⏳';
+    const status   = task.completed ? 'Completed' : over ? 'Overdue' : 'Active';
+
+    const dateAdded = new Date(Number(task.id)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const duePart  = task.dueDate ? `· Due ${formatDate(task.dueDate)}` : '';
+    const priBadge = task.priority ? `<span class="tl-badge ${task.priority}">${task.priority.toUpperCase()}</span>` : '';
+
+    const item = document.createElement('div');
+    item.className = 'timeline-item';
+    item.style.animationDelay = (i * 0.04) + 's';
+    item.innerHTML = `
+      <div class="tl-dot ${dotClass}">${icon}</div>
+      <div class="tl-body">
+        <div class="tl-text ${task.completed ? 'strike' : ''}">${task.text}</div>
+        <div class="tl-meta">
+          <span>${status}</span>
+          <span>Added ${dateAdded}</span>
+          ${duePart ? `<span>${duePart}</span>` : ''}
+          ${priBadge}
+        </div>
+      </div>
+    `;
+    tl.appendChild(item);
+  });
+}
+
+function filterTimeline(filter, btn) {
+  tlFilter = filter;
+  document.querySelectorAll('.tl-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTimeline();
+}
+
+// ── Emoji picker ───────────────────────────────────────────────────────────
+function buildEmojiGrid(current) {
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = '';
+  EMOJIS.forEach(em => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-opt' + (em === current ? ' selected' : '');
+    btn.textContent = em;
+    btn.onclick = () => selectEmoji(em, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function openEmojiPicker() {
+  document.getElementById('emojiOverlay').classList.add('open');
+}
+
+function closeEmojiPicker() {
+  document.getElementById('emojiOverlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('emojiOverlay')) closeEmojiPicker();
+}
+
+function selectEmoji(em, btn) {
+  document.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  document.getElementById('heroAvatar').textContent = em;
+
+  // Save
+  const users = getUsers();
+  const idx = users.findIndex(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+  if (idx !== -1) { users[idx].avatar = em; saveUsers(users); }
+
+  closeEmojiPicker();
+  showToast('Avatar updated!');
+}
+
+// ── Edit profile ───────────────────────────────────────────────────────────
+function toggleEdit() {
+  const section = document.getElementById('profileEdit');
+  const view    = document.getElementById('profileView');
+  const btn     = document.getElementById('editToggleBtn');
+  const isOpen  = section.classList.contains('open');
+
+  if (isOpen) {
+    section.classList.remove('open');
+    view.style.display = '';
+    btn.textContent = '✏️ Edit';
+  } else {
+    document.getElementById('editName').value  = currentUser.name;
+    document.getElementById('editEmail').value = currentUser.email;
+    section.classList.add('open');
+    view.style.display = 'none';
+    btn.textContent = '✕ Close';
+    clearFieldErrors(['editName','editEmail'], ['editNameErr','editEmailErr']);
+    hideAlert('profileAlert');
+  }
+}
+
+function cancelEdit() { toggleEdit(); }
+
+function saveProfile() {
+  const name  = document.getElementById('editName').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  let valid = true;
+
+  clearFieldErrors(['editName','editEmail'], ['editNameErr','editEmailErr']);
+
+  if (name.length < 2) { showFieldError('editName','editNameErr'); valid = false; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFieldError('editEmail','editEmailErr'); valid = false; }
+  if (!valid) return;
+
+  const users = getUsers();
+  const emailTaken = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.email.toLowerCase() !== currentUser.email.toLowerCase());
+  if (emailTaken) { showSectionAlert('profileAlert', 'That email is already used by another account.', 'error'); return; }
+
+  const idx = users.findIndex(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+  if (idx === -1) return;
+
+  // If email changed, migrate tasks
+  if (users[idx].email.toLowerCase() !== email.toLowerCase()) {
+    const tasks = getUserTasks(users[idx].email);
+    localStorage.setItem('tasks_' + email.toLowerCase(), JSON.stringify(tasks));
+    localStorage.removeItem('tasks_' + users[idx].email.toLowerCase());
+  }
+
+  users[idx].name  = name;
+  users[idx].email = email;
+  saveUsers(users);
+
+  // Update session
+  localStorage.setItem('todo_session', JSON.stringify({ email, name }));
+  currentUser = users[idx];
+
+  // Refresh display
+  document.getElementById('heroName').textContent  = name;
+  document.getElementById('heroEmail').textContent = email;
+  document.getElementById('viewName').textContent  = name;
+  document.getElementById('viewEmail').textContent = email;
+
+  toggleEdit();
+  showToast('Profile updated successfully!');
+}
+
+// ── Change password ────────────────────────────────────────────────────────
+function togglePassword_section() {
+  const section = document.getElementById('pwEdit');
+  const btn     = document.getElementById('pwToggleBtn');
+  const isOpen  = section.classList.contains('open');
+
+  if (isOpen) {
+    section.classList.remove('open');
+    btn.textContent = '✏️ Change';
+  } else {
+    ['pwCurrent','pwNew','pwConfirm'].forEach(id => document.getElementById(id).value = '');
+    clearFieldErrors(['pwCurrent','pwNew','pwConfirm'], ['pwCurrentErr','pwNewErr','pwConfirmErr']);
+    hideAlert('pwAlert');
+    section.classList.add('open');
+    btn.textContent = '✕ Close';
+  }
+}
+
+function cancelPasswordEdit() { togglePassword_section(); }
+
+function savePassword() {
+  const cur     = document.getElementById('pwCurrent').value;
+  const nw      = document.getElementById('pwNew').value;
+  const confirm = document.getElementById('pwConfirm').value;
+  let valid = true;
+
+  clearFieldErrors(['pwCurrent','pwNew','pwConfirm'], ['pwCurrentErr','pwNewErr','pwConfirmErr']);
+  hideAlert('pwAlert');
+
+  const users = getUsers();
+  const idx = users.findIndex(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+
+  if (users[idx].password !== cur) { showFieldError('pwCurrent','pwCurrentErr'); valid = false; }
+  if (nw.length < 6)               { showFieldError('pwNew','pwNewErr'); valid = false; }
+  if (nw !== confirm)              { showFieldError('pwConfirm','pwConfirmErr'); valid = false; }
+  if (!valid) return;
+
+  users[idx].password = nw;
+  saveUsers(users);
+  togglePassword_section();
+  showToast('Password updated!');
+}
+
+function togglePwVis(inputId, btn) {
+  const el = document.getElementById(inputId);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.textContent = el.type === 'password' ? '👁' : '🙈';
+}
+
+// ── Danger zone ────────────────────────────────────────────────────────────
+function clearAllTasks() {
+  if (!confirm('Delete ALL your tasks permanently? This cannot be undone.')) return;
+  const key = 'tasks_' + currentUser.email.toLowerCase();
+  localStorage.removeItem(key);
+  localStorage.removeItem('tasks'); // clear old global key too
+  allTasks = [];
+  loadProfile();
+  showToast('All tasks cleared.');
+}
+
+function deleteAccount() {
+  if (!confirm('Delete your account and all data permanently? You will be signed out.')) return;
+  if (!confirm('Are you absolutely sure? This cannot be undone.')) return;
+
+  const users = getUsers().filter(u => u.email.toLowerCase() !== currentUser.email.toLowerCase());
+  saveUsers(users);
+  localStorage.removeItem('tasks_' + currentUser.email.toLowerCase());
+  localStorage.removeItem('tasks');
+  localStorage.removeItem('todo_session');
+  localStorage.removeItem('todo_remember');
+  window.location.href = 'auth.html';
+}
+
+// ── Field error helpers ────────────────────────────────────────────────────
+function showFieldError(inputId, errId) {
+  document.getElementById(inputId).classList.add('error');
+  document.getElementById(errId).classList.add('show');
+}
+
+function clearFieldErrors(inputs, errs) {
+  inputs.forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('error'); });
+  errs.forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('show'); });
+}
+
+function showSectionAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = (type === 'success' ? '✅ ' : '❌ ') + msg;
+  el.className = `section-alert show ${type}`;
+}
+
+function hideAlert(id) {
+  const el = document.getElementById(id);
+  if (el) el.className = 'section-alert';
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✓ ' + msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+loadProfile();
+</script>
+</body>
+</html>
