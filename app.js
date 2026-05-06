@@ -19,18 +19,38 @@ document.addEventListener('DOMContentLoaded', () => {
     let tasks = [];
     let currentFilter = 'all';
 
-    // Load tasks from Local Storage
+    // Get current user's task storage key (per-user isolation)
+    function getTaskKey() {
+        const session = localStorage.getItem('todo_session');
+        if (session) {
+            const { email } = JSON.parse(session);
+            return 'tasks_' + email.toLowerCase();
+        }
+        return 'tasks';
+    }
+
+    // Load tasks from Local Storage (per-user)
     function loadTasks() {
-        const saved = localStorage.getItem('tasks');
+        const key = getTaskKey();
+        const saved = localStorage.getItem(key);
         if (saved) {
             tasks = JSON.parse(saved);
+        } else {
+            // Migrate from old global 'tasks' key if present
+            const old = localStorage.getItem('tasks');
+            if (old) {
+                tasks = JSON.parse(old);
+                localStorage.setItem(key, old);
+            } else {
+                tasks = [];
+            }
         }
         renderTasks();
     }
 
-    // Save tasks to Local Storage
+    // Save tasks to Local Storage (per-user)
     function saveTasks() {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
+        localStorage.setItem(getTaskKey(), JSON.stringify(tasks));
     }
 
     // Create task element
@@ -146,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event Listeners
     taskForm.addEventListener('submit', addTask);
     clearCompletedBtn.addEventListener('click', clearCompleted);
 
@@ -164,12 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
     });
 
-    // Load Theme
     if (localStorage.getItem('theme') === 'dark' || 
         (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
     }
 
-    // Start the app
     loadTasks();
 });
